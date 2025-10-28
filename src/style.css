@@ -1,1 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
 @import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-righteous: "Righteous", sans-serif;
+
+  /* Colors */
+  --color-off-white: #fdfdfc;
+}
