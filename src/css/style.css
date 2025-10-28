@@ -5,7 +5,8 @@
 @theme {
   /* Fonts */
   --font-righteous: "Righteous", sans-serif;
-  --font-satoshi: "Satoshi-Medium", sans-serif;
+  --font-satoshi-medium: "Satoshi-Medium", sans-serif;
+  --font-satoshi-bold: "Satoshi-Bold", sans-serif;
 
   /* Colors */
   --color-off-white: #fdfdfc;
