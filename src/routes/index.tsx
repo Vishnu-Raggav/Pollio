@@ -23,23 +23,25 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   return (
-    <div className="relative w-screen h-screen bg-off-white pt-20 pl-30 pr-40">
+    <div className="relative w-screen h-screen bg-off-white pt-20 pl-30 pr-40 max-md:px-10 max-md:pt-10 max-lg:px-20">
       <header className="flex items-center justify-between w-full h-fit">
-        <div className="flex items-center gap-6">
-          <img src={logo} className="size-7" />
-          <span className="font-righteous text-4xl">Pollio</span>
+        <div className="flex items-center gap-6 max-md:gap-4">
+          <img src={logo} className="size-7 max-md:size-4" />
+          <span className="font-righteous text-4xl max-md:text-2xl">
+            Pollio
+          </span>
         </div>
         <Button variant={"secondary"} text={"Log In"}>
-          <LogIn className="size-4" />
+          <LogIn className="size-4 max-md:size-3" />
         </Button>
       </header>
-      <main className="flex flex-col items-center w-full h-fit pt-30 gap-6">
-        <span className="font-satoshi-bold tracking-tight text-center text-6xl/tight">
+      <main className="flex flex-col items-center w-full h-fit pt-30 max-md:pt-20 gap-6">
+        <span className="font-satoshi-bold tracking-tight text-center text-6xl/tight max-md:text-3xl">
           The Fastest way to know
-          <br />
-          what people think
+          <br className="max-lg:hidden" />
+          &nbsp;what people think
         </span>
-        <span className="font-satoshi-medium text-center tracking-tight text-lg text-black/50">
+        <span className="font-satoshi-medium text-center tracking-tight text-lg max-md:text-sm text-black/50">
           Turn quick questions into powerful insights,
           <br />
           without the complexity of traditional survey tools.
@@ -47,7 +49,7 @@ function RouteComponent() {
 
         <div className="mt-14">
           <Button text="Get Started" variant={"primary"}>
-            <Sparkle fill="#ffffff" className="size-4" />
+            <Sparkle fill="#ffffff" className="size-4 max-md:size-3" />
           </Button>
         </div>
       </main>
@@ -76,8 +78,10 @@ function Bars({ position }: { position: "left" | "right" }) {
     <div
       ref={containerRef}
       className={cn(
-        "pointer-events-none absolute top-0 h-screen w-fit flex items-end gap-20",
-        position === "left" ? "left-30" : "right-40 scale-x-[-1]"
+        "pointer-events-none absolute top-0 h-screen w-fit flex items-end gap-20 max-lg:gap-10 max-md:gap-4",
+        position === "left"
+          ? "left-30 max-md:left-10 max-lg:left-20"
+          : "right-40 max-md:right-10 max-lg:right-20 scale-x-[-1]"
       )}
     >
       {Array(3)
@@ -86,7 +90,7 @@ function Bars({ position }: { position: "left" | "right" }) {
           <div
             key={index}
             style={{ height: `${50 - index * 15}vh` }}
-            className="bars w-18 rounded-t-xl border-2 border-black/25 origin-bottom"
+            className="bars w-18 max-lg:w-10 max-md:w-4 rounded-t-xl max-md:rounded-t-sm max-lg:rounded-t-md border-2 max-md:border-[1px] border-black/25 origin-bottom"
           />
         ))}
     </div>
