@@ -11,6 +11,11 @@ import Button from "@/components/Button";
 
 // Libs
 import cn from "@/utils/cn";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -55,8 +60,21 @@ function RouteComponent() {
 }
 
 function Bars({ position }: { position: "left" | "right" }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        ".bars",
+        { scaleY: 0 },
+        { scaleY: 1, stagger: 0.2, duration: 0.5 }
+      );
+    },
+    { scope: containerRef }
+  );
   return (
     <div
+      ref={containerRef}
       className={cn(
         "pointer-events-none absolute top-0 h-screen w-fit flex items-end gap-20",
         position === "left" ? "left-30" : "right-40 scale-x-[-1]"
@@ -68,7 +86,7 @@ function Bars({ position }: { position: "left" | "right" }) {
           <div
             key={index}
             style={{ height: `${50 - index * 15}vh` }}
-            className="w-18 rounded-t-xl border-2 border-black/25"
+            className="bars w-18 rounded-t-xl border-2 border-black/25 origin-bottom"
           />
         ))}
     </div>
