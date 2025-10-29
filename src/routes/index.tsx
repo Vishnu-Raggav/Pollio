@@ -10,6 +10,7 @@ import { LogIn, Sparkle } from "lucide-react";
 import Button from "@/components/Button";
 
 // Libs
+import { Link } from "@tanstack/react-router";
 import cn from "@/utils/cn";
 import { useRef } from "react";
 import gsap from "gsap";
@@ -48,9 +49,11 @@ function RouteComponent() {
         </span>
 
         <div className="mt-14">
-          <Button text="Get Started" variant={"primary"}>
-            <Sparkle fill="#ffffff" className="size-4 max-md:size-3" />
-          </Button>
+          <Link to="/signup">
+            <Button text="Get Started" variant={"primary"}>
+              <Sparkle fill="#ffffff" className="size-4 max-md:size-3" />
+            </Button>
+          </Link>
         </div>
       </main>
 
