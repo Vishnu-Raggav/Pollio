@@ -9,6 +9,9 @@ import { LogIn, Sparkle } from "lucide-react";
 // Components
 import Button from "@/components/Button";
 
+// Libs
+import cn from "@/utils/cn";
+
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
@@ -45,29 +48,29 @@ function RouteComponent() {
       </main>
 
       {/* Background Bars */}
-      <div className="pointer-events-none absolute left-30 top-0 h-screen w-fit flex items-end gap-20">
-        {Array(3)
-          .fill(null)
-          .map((_, index) => (
-            <div
-              key={index}
-              style={{ height: `${50 - index * 15}vh` }}
-              className="w-18 rounded-t-xl border-2 border-black/25"
-            />
-          ))}
-      </div>
+      <Bars position="left" />
+      <Bars position="right" />
+    </div>
+  );
+}
 
-      <div className="pointer-events-none absolute right-40 top-0 h-screen w-fit flex items-end gap-20 scale-x-[-1]">
-        {Array(3)
-          .fill(null)
-          .map((_, index) => (
-            <div
-              key={index}
-              style={{ height: `${50 - index * 15}vh` }}
-              className="w-18 rounded-t-xl border-2 border-black/25"
-            />
-          ))}
-      </div>
+function Bars({ position }: { position: "left" | "right" }) {
+  return (
+    <div
+      className={cn(
+        "pointer-events-none absolute top-0 h-screen w-fit flex items-end gap-20",
+        position === "left" ? "left-30" : "right-40 scale-x-[-1]"
+      )}
+    >
+      {Array(3)
+        .fill(null)
+        .map((_, index) => (
+          <div
+            key={index}
+            style={{ height: `${50 - index * 15}vh` }}
+            className="w-18 rounded-t-xl border-2 border-black/25"
+          />
+        ))}
     </div>
   );
 }
