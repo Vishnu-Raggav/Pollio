@@ -45,7 +45,7 @@ function RouteComponent() {
       </main>
 
       {/* Background Bars */}
-      <div className="absolute left-30 top-0 h-screen w-fit flex items-end gap-20">
+      <div className="pointer-events-none absolute left-30 top-0 h-screen w-fit flex items-end gap-20">
         {Array(3)
           .fill(null)
           .map((_, index) => (
@@ -57,7 +57,7 @@ function RouteComponent() {
           ))}
       </div>
 
-      <div className="absolute right-40 top-0 h-screen w-fit flex items-end gap-20 scale-x-[-1]">
+      <div className="pointer-events-none absolute right-40 top-0 h-screen w-fit flex items-end gap-20 scale-x-[-1]">
         {Array(3)
           .fill(null)
           .map((_, index) => (
