@@ -1,3 +1,4 @@
+import cn from "@/utils/cn";
 import type { JSX } from "react";
 
 interface ButtonProps {
@@ -7,15 +8,17 @@ interface ButtonProps {
 }
 
 export default function Button({ text, variant, children }: ButtonProps) {
-  return variant === "primary" ? (
-    <div className="select-none flex items-center gap-2 cursor-pointer px-3 py-1 bg-black border-[1px] border-black rounded-md font-medium text-white">
+  return (
+    <div
+      className={cn(
+        "select-none cursor-pointer flex items-center gap-2 rounded-md px-3 py-1 border-[1px] font-satoshi-medium",
+        variant === "primary"
+          ? "bg-black border-black text-white"
+          : "bg-white border-black/25 text-black"
+      )}
+    >
       {children}
-      <span className="font-satoshi text-lg">{text}</span>
-    </div>
-  ) : (
-    <div className="select-none flex items-center gap-2 cursor-pointer px-3 py-1 bg-white border-[1px] border-black/25 rounded-md font-medium">
-      {children}
-      <span className="font-satoshi text-lg">{text}</span>
+      <span className="text-lg">{text}</span>
     </div>
   );
 }
