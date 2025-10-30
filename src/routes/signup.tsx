@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -105,7 +105,7 @@ function RouteComponent() {
                 "hover:after:scale-x-100"
               )}
             >
-              Log In
+              <Link to="/login">Log In</Link>
             </span>
           </span>
         </div>

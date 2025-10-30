@@ -32,9 +32,11 @@ function RouteComponent() {
             Pollio
           </span>
         </div>
-        <Button variant={"secondary"} text={"Log In"}>
-          <LogIn className="size-4 max-md:size-3" />
-        </Button>
+        <Link to="/login">
+          <Button variant={"secondary"} text={"Log In"}>
+            <LogIn className="size-4 max-md:size-3" />
+          </Button>
+        </Link>
       </header>
       <main className="flex flex-col items-center w-full h-fit pt-30 max-md:pt-20 gap-6">
         <span className="font-satoshi-bold tracking-tight text-center text-6xl/tight max-md:text-3xl">
