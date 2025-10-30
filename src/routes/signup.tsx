@@ -4,11 +4,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import logo from "/logo.svg";
 
 // Components
-import Button from "@/components/Button";
 import Input from "@/components/Input";
+import Button from "@/components/Button";
 
 // Libs
-import * as z from "zod";
 import { Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,30 +16,20 @@ import {
   type SubmitErrorHandler,
 } from "react-hook-form";
 
+// Schemas
+import { formSchema, type SchemaType } from "@/schemas/signupSchema";
+
 export const Route = createFileRoute("/signup")({
   component: RouteComponent,
 });
 
-const formSchema = z
-  .object({
-    email: z.email("Invalid Email"),
-    password: z.string().min(8, "Password must contain atleast 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type FormType = z.infer<typeof formSchema>;
-
 function RouteComponent() {
-  const { register, handleSubmit } = useForm<FormType>({
+  const { register, handleSubmit } = useForm<SchemaType>({
     resolver: zodResolver(formSchema),
   });
 
-  const submitForm: SubmitHandler<FormType> = (data) => console.log(data);
-  const errorForm: SubmitErrorHandler<FormType> = (data) =>
+  const submitForm: SubmitHandler<SchemaType> = (data) => console.log(data);
+  const errorForm: SubmitErrorHandler<SchemaType> = (data) =>
     console.log("error", data);
 
   return (
