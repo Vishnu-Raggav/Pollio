@@ -8,6 +8,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 
 // Libs
+import { toast } from "sonner";
 import { Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -28,9 +29,33 @@ function RouteComponent() {
     resolver: zodResolver(formSchema),
   });
 
-  const submitForm: SubmitHandler<SchemaType> = (data) => console.log(data);
-  const errorForm: SubmitErrorHandler<SchemaType> = (data) =>
-    console.log("error", data);
+  const submitForm: SubmitHandler<SchemaType> = (data) => {
+    // fake signup function
+    const promise = async () =>
+      new Promise((resolve) => setTimeout(resolve, 2000));
+
+    toast.promise(promise, {
+      loading: "Loading...",
+      success: "Success",
+    });
+    console.log(data);
+  };
+
+  const errorForm: SubmitErrorHandler<SchemaType> = (errors) => {
+    let errorShown = false;
+    const errorKeys = Object.keys(errors);
+    const errorPriority = ["email", "password", "confirmPassword"] as const;
+
+    for (const key of errorPriority) {
+      if (!errorShown && errorKeys.includes(key)) {
+        const message = errors[key]?.message;
+        if (message) {
+          toast.error(message);
+          errorShown = true;
+        }
+      }
+    }
+  };
 
   return (
     <div className="w-screen h-screen bg-off-white flex flex-col items-center pt-38 gap-12">
