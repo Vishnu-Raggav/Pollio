@@ -19,9 +19,9 @@ export default function Button({
       {...props}
       className={cn(
         "w-fit h-fit select-none cursor-pointer flex items-center gap-2 rounded-md px-3 max-md:px-2 py-1 border-[1px] font-satoshi-medium",
-        variant === "primary"
-          ? "bg-black border-black text-white"
-          : "bg-white border-black/25 text-black"
+        variant === "primary" && "bg-black border-black text-white",
+        variant === "secondary" && "bg-white border-black/25 text-black",
+        "disabled disabled:opacity-50 disabled:cursor-not-allowed disabled:text-neutral-400"
       )}
     >
       {children}

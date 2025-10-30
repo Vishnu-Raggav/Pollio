@@ -10,6 +10,7 @@ import Button from "@/components/Button";
 // Libs
 import cn from "@/utils/cn";
 import { toast } from "sonner";
+import { useState } from "react";
 import { Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -26,11 +27,13 @@ export const Route = createFileRoute("/signup")({
 });
 
 function RouteComponent() {
+  const [loading, setLoading] = useState(false);
   const { register, handleSubmit } = useForm<SchemaType>({
     resolver: zodResolver(formSchema),
   });
 
   const submitForm: SubmitHandler<SchemaType> = (data) => {
+    setLoading(true);
     // fake signup function
     const promise = async () =>
       new Promise((resolve) => setTimeout(resolve, 2000));
@@ -84,7 +87,12 @@ function RouteComponent() {
           {...register("confirmPassword")}
         />
         <div className="flex flex-col items-center gap-4 mt-10">
-          <Button type="submit" text="Sign Up" variant={"primary"}>
+          <Button
+            type="submit"
+            text="Sign Up"
+            variant={"primary"}
+            disabled={loading}
+          >
             <Mail className="size-4" />
           </Button>
           <span className="text-md text-black/50">
