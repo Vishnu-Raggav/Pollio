@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
+
+// Components
 import Button from "@/components/Button";
+import Input from "@/components/Input";
+
+// Libs
 import { Mail } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
@@ -20,18 +25,9 @@ function RouteComponent() {
         </span>
       </div>
       <form className="flex flex-col items-center gap-8 font-satoshi-medium mt-4">
-        <input
-          placeholder="Email"
-          className="text-md w-[30vw] rounded-lg border-2 border-black/25 px-4 py-2 focus:outline-1 focus:outline-black/25 focus:bg-white"
-        />
-        <input
-          placeholder="Password"
-          className="text-md w-[30vw] rounded-lg border-2 border-black/25 px-4 py-2 focus:outline-1 focus:outline-black/25 focus:bg-white"
-        />
-        <input
-          placeholder="Confirm Password"
-          className="text-md w-[30vw] rounded-lg border-2 border-black/25 px-4 py-2 focus:outline-1 focus:outline-black/25 focus:bg-white"
-        />
+        <Input placeholder="Email" />
+        <Input placeholder="Password" />
+        <Input placeholder="Confirm Password" />
         <div className="flex flex-col items-center gap-4 mt-10">
           <Button text="Sign Up" variant={"primary"}>
             <Mail className="size-4" />
