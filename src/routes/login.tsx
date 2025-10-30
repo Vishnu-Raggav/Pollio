@@ -20,7 +20,7 @@ import {
 } from "react-hook-form";
 
 // Schemas
-import { formSchema, type SchemaType } from "@/schemas/signupSchema";
+import { formSchema, type SchemaType } from "@/schemas/loginSchema";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
@@ -34,7 +34,7 @@ function RouteComponent() {
 
   const submitForm: SubmitHandler<SchemaType> = (data) => {
     setLoading(true);
-    // fake signup function
+    // fake login function
     const promise = async () =>
       new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -48,7 +48,7 @@ function RouteComponent() {
   const errorForm: SubmitErrorHandler<SchemaType> = (errors) => {
     let errorShown = false;
     const errorKeys = Object.keys(errors);
-    const errorPriority = ["email", "password", "confirmPassword"] as const;
+    const errorPriority = ["email", "password"] as const;
 
     for (const key of errorPriority) {
       if (!errorShown && errorKeys.includes(key)) {
@@ -80,11 +80,6 @@ function RouteComponent() {
           type="password"
           placeholder="Password"
           {...register("password")}
-        />
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          {...register("confirmPassword")}
         />
         <div className="flex flex-col items-center gap-4 mt-10">
           <Button
