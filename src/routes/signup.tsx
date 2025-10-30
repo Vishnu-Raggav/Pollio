@@ -8,6 +8,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 
 // Libs
+import cn from "@/utils/cn";
 import { toast } from "sonner";
 import { Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,7 +89,16 @@ function RouteComponent() {
           </Button>
           <span className="text-md text-black/50">
             Already have an account?{" "}
-            <span className="text-black cursor-pointer">Log In</span>
+            <span
+              className={cn(
+                "relative text-black cursor-pointer duration-150",
+                "after:absolute after:transition-transform ease-out",
+                "after:bg-black after:w-full after:scale-x-0 after:h-[2px] after:top-full after:left-0 after:origin-left",
+                "hover:after:scale-x-100"
+              )}
+            >
+              Log In
+            </span>
           </span>
         </div>
       </form>
