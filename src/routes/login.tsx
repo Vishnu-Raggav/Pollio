@@ -62,18 +62,20 @@ function RouteComponent() {
   };
 
   return (
-    <div className="w-screen h-screen bg-off-white flex flex-col items-center pt-38 gap-12">
-      <img src={logo} className="size-7" />
+    <div className="w-screen h-screen bg-off-white flex flex-col items-center pt-38 max-lg:pt-64 max-md:pt-30 gap-12">
+      <img src={logo} className="size-7 max-md:size-5" />
       <div className="flex flex-col items-center gap-2">
-        <span className="font-satoshi-bold text-3xl">Welcome Back</span>
-        <span className="font-satoshi-medium text-lg text-black/50">
+        <span className="font-satoshi-bold text-3xl max-md:text-2xl">
+          Welcome Back
+        </span>
+        <span className="font-satoshi-medium text-lg max-md:text-sm text-black/50">
           Log in to continue creating and sharing polls
         </span>
       </div>
       <form
         noValidate
         onSubmit={handleSubmit(submitForm, errorForm)}
-        className="flex flex-col items-center w-[30vw] gap-8 font-satoshi-medium mt-4"
+        className="flex flex-col items-center w-[30vw] max-lg:w-[50vw] max-md:w-[70vw] gap-8 font-satoshi-medium mt-4"
       >
         <Input type="email" placeholder="Email" {...register("email")} />
         <Input
@@ -90,7 +92,7 @@ function RouteComponent() {
           >
             <KeyRound className="size-4" />
           </Button>
-          <span className="text-md text-black/50">
+          <span className="text-md max-md:text-sm text-black/50">
             Don't have an account?{" "}
             <span
               className={cn(
