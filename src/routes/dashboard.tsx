@@ -1,9 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/dashboard')({
-  component: RouteComponent,
-})
+// Helpers
+import isAuthenticated from "@/utils/isAuthenticated";
 
-function RouteComponent() {
-  return <div>Hello "/dashboard"!</div>
-}
+export const Route = createFileRoute("/dashboard")({
+  beforeLoad: async () => {
+    const loggedIn = await isAuthenticated();
+    if (!loggedIn) {
+      throw redirect({ to: "/" });
+    }
+  },
+});
