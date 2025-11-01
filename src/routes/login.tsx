@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -8,7 +8,6 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 
 // Libs
-import cn from "@/utils/cn";
 import { toast } from "sonner";
 import { useState } from "react";
 import { KeyRound } from "lucide-react";
@@ -22,11 +21,16 @@ import {
 // Schemas
 import { formSchema, type SchemaType } from "@/schemas/loginSchema";
 
+// Helpers
+import cn from "@/utils/cn";
+import login from "@/utils/login";
+
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit } = useForm<SchemaType>({
     resolver: zodResolver(formSchema),
@@ -34,15 +38,12 @@ function RouteComponent() {
 
   const submitForm: SubmitHandler<SchemaType> = (data) => {
     setLoading(true);
-    // fake login function
-    const promise = async () =>
-      new Promise((resolve) => setTimeout(resolve, 2000));
-
-    toast.promise(promise, {
-      loading: "Loading...",
-      success: "Success",
-    });
-    console.log(data);
+    login({ email: data.email, password: data.password })
+      .then(() => {
+        toast.success("Welcome back");
+        setTimeout(() => navigate({ to: "/dashboard" }), 2000);
+      })
+      .catch(() => toast.error("Invalid email or password"));
   };
 
   const errorForm: SubmitErrorHandler<SchemaType> = (errors) => {
