@@ -8,7 +8,6 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 
 // Libs
-import cn from "@/utils/cn";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Mail } from "lucide-react";
@@ -22,6 +21,10 @@ import {
 // Schemas
 import { formSchema, type SchemaType } from "@/schemas/signupSchema";
 
+// Helpers
+import cn from "@/utils/cn";
+import signup from "@/utils/signup";
+
 export const Route = createFileRoute("/signup")({
   component: RouteComponent,
 });
@@ -34,15 +37,12 @@ function RouteComponent() {
 
   const submitForm: SubmitHandler<SchemaType> = (data) => {
     setLoading(true);
-    // fake signup function
-    const promise = async () =>
-      new Promise((resolve) => setTimeout(resolve, 2000));
 
-    toast.promise(promise, {
-      loading: "Loading...",
-      success: "Success",
-    });
-    console.log(data);
+    signup({ email: data.email, password: data.password })
+      .then(() =>
+        toast.info("Almost done! Confirm your email to complete sign-up")
+      )
+      .catch(() => toast.error("Sign-up failed. Please try again"));
   };
 
   const errorForm: SubmitErrorHandler<SchemaType> = (errors) => {
