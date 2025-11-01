@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -24,9 +24,16 @@ import { formSchema, type SchemaType } from "@/schemas/signupSchema";
 // Helpers
 import cn from "@/utils/cn";
 import signup from "@/utils/signup";
+import isAuthenticated from "@/utils/isAuthenticated";
 
 export const Route = createFileRoute("/signup")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const loggedIn = await isAuthenticated();
+    if (loggedIn) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 function RouteComponent() {

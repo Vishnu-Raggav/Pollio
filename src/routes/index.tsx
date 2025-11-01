@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -10,16 +10,24 @@ import { LogIn, Sparkle } from "lucide-react";
 import Button from "@/components/Button";
 
 // Libs
-import { Link } from "@tanstack/react-router";
-import cn from "@/utils/cn";
-import { useRef } from "react";
 import gsap from "gsap";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
+
+// Helpers
+import cn from "@/utils/cn";
+import isAuthenticated from "@/utils/isAuthenticated";
 
 gsap.registerPlugin(useGSAP);
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const loggedIn = await isAuthenticated();
+    if (loggedIn) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 function RouteComponent() {
