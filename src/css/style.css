@@ -11,3 +11,7 @@
   /* Colors */
   --color-off-white: #fdfdfc;
 }
+
+.input {
+  @apply font-satoshi-medium text-base max-md:text-sm rounded-lg border border-black/25 px-4 py-2 focus:outline-1 focus:outline-black/25 focus:bg-white;
+}
