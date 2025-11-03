@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -93,9 +93,11 @@ function RouteComponent() {
           >
             <Send className="size-4 max-md:size-3" />
           </Button>
-          <Button variant={"secondary"} text={"Delete"} size="small">
-            <Trash className="size-4 max-md:size-3" />
-          </Button>
+          <Link to="/dashboard">
+            <Button variant={"secondary"} text={"Delete"} size="small">
+              <Trash className="size-4 max-md:size-3" />
+            </Button>
+          </Link>
         </div>
       </header>
       <main className="mt-14 pb-20">
