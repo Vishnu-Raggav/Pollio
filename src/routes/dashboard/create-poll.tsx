@@ -9,8 +9,14 @@ import FormLabel from "@/components/FormLabel";
 import FormLabelDescription from "@/components/FormLabelDescription";
 
 // Libs
+import { toast } from "sonner";
 import { Minus, Plus, Send, Trash, X } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  type SubmitHandler,
+  type SubmitErrorHandler,
+} from "react-hook-form";
 
 // Schemas
 import { type SchemaType } from "@/schemas/createPollSchema";
@@ -23,16 +29,51 @@ export const Route = createFileRoute("/dashboard/create-poll")({
 });
 
 function RouteComponent() {
-  const { register, control, getValues, setValue } = useForm<SchemaType>({
-    defaultValues: {
-      options: [{ value: "" }, { value: "" }],
-      duration: 1,
-    },
-  });
+  const { register, control, getValues, setValue, handleSubmit } =
+    useForm<SchemaType>({
+      defaultValues: {
+        options: [{ value: "" }, { value: "" }],
+        duration: 1,
+      },
+    });
   const { fields, append, remove } = useFieldArray({
     name: "options",
     control,
   });
+
+  const submitFn: SubmitHandler<SchemaType> = (data) => {
+    console.log(data);
+  };
+
+  const errorFn: SubmitErrorHandler<SchemaType> = (errors) => {
+    const errorPriority = [
+      "title",
+      "description",
+      "options",
+      "duration",
+    ] as const;
+
+    for (const errorName of errorPriority) {
+      const fieldError = errors[errorName];
+      if (!fieldError) continue;
+
+      if (errorName === "options" && Array.isArray(fieldError)) {
+        for (const option of fieldError) {
+          const msg = option?.value?.message;
+          if (msg) {
+            toast.error(msg);
+            return; // stop after first option error
+          }
+        }
+        continue;
+      }
+
+      if ("message" in fieldError && fieldError.message) {
+        toast.error(fieldError.message);
+        return;
+      }
+    }
+  };
 
   return (
     <div className="relative w-screen h-fit bg-off-white pt-20 px-30 max-md:px-10 max-md:pt-10 max-lg:px-20">
@@ -44,7 +85,12 @@ function RouteComponent() {
           </span>
         </div>
         <div className="flex gap-6">
-          <Button variant={"primary"} text={"Publish"} size="small">
+          <Button
+            onClick={handleSubmit(submitFn, errorFn)}
+            variant={"primary"}
+            text={"Publish"}
+            size="small"
+          >
             <Send className="size-4 max-md:size-3" />
           </Button>
           <Button variant={"secondary"} text={"Delete"} size="small">
@@ -53,7 +99,10 @@ function RouteComponent() {
         </div>
       </header>
       <main className="mt-14 pb-20">
-        <form className="w-full h-fit border-2 border-black/25 rounded-lg p-10 divide-y-2 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]">
+        <form
+          onSubmit={handleSubmit(submitFn, errorFn)}
+          className="w-full h-fit border-2 border-black/25 rounded-lg p-10 divide-y-2 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]"
+        >
           <div className="w-full h-fit flex pb-[var(--space)]">
             <div className="w-1/2 flex flex-col gap-2">
               <FormLabel>Poll Title</FormLabel>
@@ -62,7 +111,17 @@ function RouteComponent() {
               </FormLabelDescription>
             </div>
             <FormInput
-              {...register("title", { required: true, maxLength: 100 })}
+              {...register("title", {
+                required: "Title is required",
+                minLength: {
+                  value: 5,
+                  message: "Title must be at least 5 characters",
+                },
+                maxLength: {
+                  value: 100,
+                  message: "Title cannot exceed 100 characters",
+                },
+              })}
               maxLength={100}
               placeholder="Cats or Dogs ?"
             />
@@ -77,7 +136,12 @@ function RouteComponent() {
               </FormLabelDescription>
             </div>
             <FormTextArea
-              {...register("description", { maxLength: 300 })}
+              {...register("description", {
+                maxLength: {
+                  value: 300,
+                  message: "Description cannot exceed 300 characters",
+                },
+              })}
               maxLength={300}
               rows={5}
               placeholder="Explain what this poll is about..."
@@ -94,20 +158,37 @@ function RouteComponent() {
               {fields.map((field, index) => (
                 <PollOption
                   key={field.id}
+                  maxLength={50}
                   disabled={fields.length <= 2}
                   placeholder={`Option ${index + 1}`}
                   onClick={() => {
                     if (fields.length > 2) remove(index);
                   }}
-                  {...register(`options.${index}.value`)}
+                  {...register(`options.${index}.value`, {
+                    required:
+                      index > 1
+                        ? "Option cannot be empty"
+                        : "Add at least 2 options",
+                    minLength: {
+                      value: 1,
+                      message: "Option must be at least 3 characters",
+                    },
+                    maxLength: {
+                      value: 50,
+                      message: "Options cannot exceed 50 characters",
+                    },
+                  })}
                 />
               ))}
               <Button
+                disabled={fields.length >= 10}
                 type="button"
                 size="small"
                 variant="secondary"
                 text="Add Option"
-                onClick={() => append({ value: "" })}
+                onClick={() => {
+                  if (fields.length < 10) append({ value: "" });
+                }}
               >
                 <Plus className="size-4 max-md:size-3" />
               </Button>
@@ -130,13 +211,20 @@ function RouteComponent() {
                 if (!Number.isNaN(value) && value > 1)
                   setValue("duration", value - 1);
               }}
-              {...register("duration", { required: true, valueAsNumber: true })}
+              {...register("duration", {
+                required: "Duration must be between 1 and 168 hours",
+                valueAsNumber: true,
+                min: 1,
+                max: 168,
+              })}
             />
           </div>
         </form>
       </main>
+
+      {/* Bottom Blur */}
       <div
-        className="pointer-event-none fixed bottom-0 left-0 w-screen h-[160px] backdrop-blur-3xl"
+        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[160px] backdrop-blur-3xl"
         style={{
           WebkitMaskImage:
             "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
