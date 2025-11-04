@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -23,29 +23,78 @@ import { type SchemaType } from "@/schemas/createPollSchema";
 
 // Helpers
 import cn from "@/utils/cn";
+import supabase from "@/lib/supabaseClient";
+import insertPoll from "@/utils/insertPoll";
 
 export const Route = createFileRoute("/dashboard/create-poll")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { register, control, getValues, setValue, handleSubmit } =
-    useForm<SchemaType>({
-      defaultValues: {
-        options: [{ value: "" }, { value: "" }],
-        duration: 1,
-      },
-    });
+  const navigate = useNavigate();
+  const {
+    register,
+    control,
+    getValues,
+    setValue,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<SchemaType>({
+    defaultValues: {
+      options: [{ value: "" }, { value: "" }],
+      duration: 1,
+    },
+  });
   const { fields, append, remove } = useFieldArray({
     name: "options",
     control,
   });
 
-  const submitFn: SubmitHandler<SchemaType> = (data) => {
-    console.log(data);
+  const submitFn: SubmitHandler<SchemaType> = async (data) => {
+    const { title, description, options, duration } = data;
+
+    // created_by
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      toast.error("Failed to create poll. Please try again");
+      return;
+    }
+    if (!user) return;
+
+    // expires_at
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + duration * 60 * 60 * 1000);
+    const expiresAtISO = expiresAt.toISOString();
+
+    // options
+    const flatOptions = options.map((obj) => obj.value.trim());
+
+    toast.promise(
+      insertPoll({
+        title: title.trim(),
+        description: description === "" ? null : description,
+        options: flatOptions,
+        created_by: user.id,
+        expires_at: expiresAtISO,
+      }),
+      {
+        loading: "Loading...",
+        success: () => {
+          reset();
+          navigate({ to: "/dashboard" });
+          return "Your poll is live! 🎉";
+        },
+        error: "Oops! We couldn’t create your poll",
+      }
+    );
   };
 
   const errorFn: SubmitErrorHandler<SchemaType> = (errors) => {
+    console.log(errors);
     const errorPriority = [
       "title",
       "description",
@@ -90,6 +139,7 @@ function RouteComponent() {
             variant={"primary"}
             text={"Publish"}
             size="small"
+            disabled={isSubmitting}
           >
             <Send className="size-4 max-md:size-3" />
           </Button>
@@ -115,9 +165,12 @@ function RouteComponent() {
             <FormInput
               {...register("title", {
                 required: "Title is required",
+                validate: (value) =>
+                  value.trim().length > 0 ||
+                  "Title cannot be empty or just spaces",
                 minLength: {
-                  value: 5,
-                  message: "Title must be at least 5 characters",
+                  value: 2,
+                  message: "Title must be at least 2 characters",
                 },
                 maxLength: {
                   value: 100,
@@ -171,6 +224,9 @@ function RouteComponent() {
                       index > 1
                         ? "Option cannot be empty"
                         : "Add at least 2 options",
+                    validate: (value) =>
+                      value.trim().length > 0 ||
+                      "Option cannot be empty or just spaces",
                     minLength: {
                       value: 1,
                       message: "Option must be at least 3 characters",
@@ -214,10 +270,16 @@ function RouteComponent() {
                   setValue("duration", value - 1);
               }}
               {...register("duration", {
-                required: "Duration must be between 1 and 168 hours",
+                required: "Duration is required",
                 valueAsNumber: true,
-                min: 1,
-                max: 168,
+                min: {
+                  value: 1,
+                  message: "Duration must atleast be an hour",
+                },
+                max: {
+                  value: 168,
+                  message: "Duration cannot exceed 168 hours (7 days)",
+                },
               })}
             />
           </div>
@@ -226,7 +288,7 @@ function RouteComponent() {
 
       {/* Bottom Blur */}
       <div
-        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[160px] backdrop-blur-3xl"
+        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[200px] backdrop-blur-3xl"
         style={{
           WebkitMaskImage:
             "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
