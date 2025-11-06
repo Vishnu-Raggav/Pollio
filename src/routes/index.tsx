@@ -46,7 +46,7 @@ function RouteComponent() {
           </Button>
         </Link>
       </header>
-      <main className="flex flex-col items-center w-full h-fit pt-30 max-md:pt-20 gap-6">
+      <main className="flex flex-col items-center w-full h-fit pt-[12vh] max-md:pt-20 gap-6">
         <span className="font-satoshi-bold tracking-tight text-center text-6xl/tight max-md:text-3xl">
           The Fastest way to know
           <br className="max-lg:hidden" />
