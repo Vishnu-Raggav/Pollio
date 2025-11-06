@@ -24,14 +24,14 @@ export default function Button({
         variant === "primary" && "bg-black border-black text-white",
         variant === "secondary" && "bg-white border-black/25 text-black",
         "disabled disabled:opacity-50 disabled:cursor-not-allowed disabled:text-neutral-400",
-        size === "small" && "py-2 px-3 rounded-lg"
+        size === "small" && "py-2 px-3 rounded-lg max-md:py-1"
       )}
     >
       {children}
       <span
         className={cn(
           "text-lg max-md:text-sm",
-          size === "small" && "text-base"
+          size === "small" && "text-base max-md:text-sm"
         )}
       >
         {text}
