@@ -11,6 +11,7 @@ import FormLabelDescription from "@/components/FormLabelDescription";
 // Libs
 import { toast } from "sonner";
 import { Minus, Plus, Send, Trash, X } from "lucide-react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   useForm,
   useFieldArray,
@@ -32,6 +33,11 @@ export const Route = createFileRoute("/dashboard/create-poll")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: insertPoll,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["polls"] }),
+  });
   const {
     register,
     control,
@@ -74,7 +80,7 @@ function RouteComponent() {
     const flatOptions = options.map((obj) => obj.value.trim());
 
     toast.promise(
-      insertPoll({
+      mutation.mutateAsync({
         title: title.trim(),
         description: description === "" ? null : description,
         options: flatOptions,
@@ -139,7 +145,7 @@ function RouteComponent() {
             variant={"primary"}
             text={"Publish"}
             size="small"
-            disabled={isSubmitting}
+            disabled={isSubmitting || mutation.isPending}
           >
             <Send className="size-4 max-md:size-3" />
           </Button>
