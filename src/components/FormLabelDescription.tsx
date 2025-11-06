@@ -4,7 +4,7 @@ export default function FormLabelDescription({
   children: React.ReactNode;
 }) {
   return (
-    <span className="font-satoshi-medium text-base text-black/50">
+    <span className="font-satoshi-medium text-base max-md:text-sm text-black/50">
       {children}
     </span>
   );

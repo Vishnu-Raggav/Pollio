@@ -133,7 +133,7 @@ function RouteComponent() {
             Pollio
           </span>
         </div>
-        <div className="flex gap-6">
+        <div className="flex gap-6 max-md:gap-4">
           <Button
             onClick={handleSubmit(submitFn, errorFn)}
             variant={"primary"}
@@ -153,10 +153,10 @@ function RouteComponent() {
       <main className="mt-14 pb-20">
         <form
           onSubmit={handleSubmit(submitFn, errorFn)}
-          className="w-full h-fit border-2 border-black/25 rounded-lg p-10 divide-y-2 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]"
+          className="w-full h-fit border-2 max-md:border-0 border-black/25 rounded-lg p-10 max-md:p-0 divide-y-2 max-md:divide-y-1 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]"
         >
-          <div className="w-full h-fit flex pb-[var(--space)]">
-            <div className="w-1/2 flex flex-col gap-2">
+          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
               <FormLabel>Poll Title</FormLabel>
               <FormLabelDescription>
                 A short, clear name for your poll
@@ -181,8 +181,8 @@ function RouteComponent() {
               placeholder="Cats or Dogs ?"
             />
           </div>
-          <div className="w-full h-fit flex pb-[var(--space)]">
-            <div className="w-1/2 flex flex-col gap-2">
+          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
               <FormLabel>Description</FormLabel>
               <FormLabelDescription>
                 Optional details about your poll
@@ -202,14 +202,14 @@ function RouteComponent() {
               placeholder="Explain what this poll is about..."
             />
           </div>
-          <div className="w-full h-fit flex pb-[var(--space)]">
-            <div className="w-1/2 flex flex-col gap-2">
+          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
               <FormLabel>Options</FormLabel>
               <FormLabelDescription>
                 Enter the choices your voters will select from
               </FormLabelDescription>
             </div>
-            <div className="w-1/2 flex flex-col gap-4">
+            <div className="w-1/2 max-md:w-full flex flex-col gap-4 max-md:gap-2 max-md:mt-4">
               {fields.map((field, index) => (
                 <PollOption
                   key={field.id}
@@ -252,8 +252,8 @@ function RouteComponent() {
               </Button>
             </div>
           </div>
-          <div className="w-full h-fit flex">
-            <div className="w-1/2 flex flex-col gap-2">
+          <div className="w-full h-fit flex max-md:flex-col">
+            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
               <FormLabel>Duration</FormLabel>
               <FormLabelDescription>
                 How long the poll stays open for voting (hours)
@@ -288,7 +288,7 @@ function RouteComponent() {
 
       {/* Bottom Blur */}
       <div
-        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[200px] backdrop-blur-3xl"
+        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[50px] backdrop-blur-3xl"
         style={{
           WebkitMaskImage:
             "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
@@ -300,13 +300,20 @@ function RouteComponent() {
 }
 
 function FormInput({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className="w-1/2 h-fit input" />;
+  return (
+    <input {...props} className="w-1/2 max-md:w-full h-fit max-md:mt-4 input" />
+  );
 }
 
 function FormTextArea({
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...props} className="resize-none h-fit w-1/2 input" />;
+  return (
+    <textarea
+      {...props}
+      className="resize-none h-fit w-1/2 max-md:w-full max-md:mt-4 input"
+    />
+  );
 }
 
 type PollOptionProps = {
@@ -343,7 +350,7 @@ function FormDurationInput({
   ...props
 }: FormDurationInputProps) {
   return (
-    <div className="w-1/2 h-fit flex gap-2">
+    <div className="w-1/2 max-md:w-full h-fit flex gap-2 max-md:mt-4">
       <button
         type="button"
         onClick={incrementFn}
