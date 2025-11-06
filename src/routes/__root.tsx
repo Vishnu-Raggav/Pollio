@@ -1,11 +1,22 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { useMediaQuery } from "react-responsive";
 
 export const Route = createRootRoute({
-  component: () => (
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  const isDesktop = useMediaQuery({ query: "(min-width: 1024px)" });
+
+  return (
     <>
       <Outlet />
-      <Toaster richColors position="bottom-center" visibleToasts={2} />
+      <Toaster
+        richColors
+        position={isDesktop ? "bottom-center" : "top-center"}
+        visibleToasts={2}
+      />
     </>
-  ),
-});
+  );
+}
