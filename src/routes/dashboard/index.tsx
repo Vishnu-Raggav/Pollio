@@ -1,4 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  Link,
+  redirect,
+} from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -10,16 +15,41 @@ import { ChevronDown, LogOut, Plus } from "lucide-react";
 
 // Libs
 import { toast } from "sonner";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Helpers
 import logout from "@/utils/logout";
+import fetchPolls from "@/utils/fetchPolls";
+import isAuthenticated from "@/utils/isAuthenticated";
+
+// Constants
+import { sortOptions, type SortOptions } from "@/constants/pollSortOptions";
 
 export const Route = createFileRoute("/dashboard/")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const loggedIn = await isAuthenticated();
+    if (!loggedIn) {
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [sortBy, setSortBy] = useState<SortOptions>("Recent");
+
+  const {
+    data: polls,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["polls", sortBy],
+    queryFn: () => fetchPolls(sortBy),
+    staleTime: Infinity,
+  });
 
   return (
     <div className="relative flex flex-col w-screen min-h-screen bg-off-white gap-16 py-20 px-30 max-md:px-10 max-md:pt-10 max-lg:px-20">
@@ -38,6 +68,7 @@ function RouteComponent() {
               loading: "Logging out... Please wait ⏳",
               success: () => {
                 navigate({ to: "/" });
+                queryClient.clear();
                 return "Logged out successfully ✨";
               },
               error: "Logout failed 😞 Please try again",
@@ -48,28 +79,44 @@ function RouteComponent() {
         </Button>
       </header>
 
-      <div className="w-full h-fit flex gap-4">
-        <Button variant={"primary"} text={"New Poll"}>
-          <Plus className="size-4 max-md:size-3" />
-        </Button>
-        <Button variant={"secondary"} text={"Sort By: Recent"}>
+      <div className="relative w-fit h-fit flex gap-4">
+        <Link to="/dashboard/create-poll">
+          <Button variant={"primary"} text={"New Poll"}>
+            <Plus className="size-4 max-md:size-3" />
+          </Button>
+        </Link>
+        <Button
+          variant={"secondary"}
+          text={`Sort By: ${sortBy}`}
+          onClick={() => {
+            const index = sortOptions.findIndex((value) => value === sortBy);
+            if (index < sortOptions.length - 1)
+              setSortBy(sortOptions[index + 1]);
+            else setSortBy(sortOptions[0]);
+          }}
+        >
           <ChevronDown className="size-4 max-md:size-3" />
         </Button>
       </div>
 
       <main className="flex flex-col gap-6">
-        <PollCard
-          status="Live"
-          title="some title"
-          votes={12}
-          date="2025-11-07T05:30:00.000Z"
-        />
-        <PollCard
-          status="Expired"
-          title="some title"
-          votes={12}
-          date="2025-11-07T05:30:00.000Z"
-        />
+        {(isLoading || isError) && <PollCard isLoading={true} />}
+        {polls?.map((poll) => {
+          const pollStatus =
+            new Date() > new Date(poll.expires_at) ? "Expired" : "Live";
+          return (
+            <PollCard
+              key={poll.id}
+              title={poll.title}
+              status={pollStatus}
+              votes={12}
+              isLoading={false}
+              date={
+                pollStatus === "Expired" ? poll.created_at : poll.expires_at
+              }
+            />
+          );
+        })}
       </main>
     </div>
   );
