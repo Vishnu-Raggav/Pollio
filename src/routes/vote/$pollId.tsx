@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -7,66 +7,117 @@ import logo from "/logo.svg";
 import type { ComponentProps } from "react";
 
 // Libs
-import { useState } from "react";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 // Helpers
 import cn from "@/utils/cn";
+import insertVote from "@/utils/insertVote";
+import fetchVotePoll from "@/utils/fetchVotePoll";
 
 export const Route = createFileRoute("/vote/$pollId")({
   component: RouteComponent,
 });
 
-const pollOptions = ["Pizza", "Burger", "Pasta", "Sushi"];
-
 function RouteComponent() {
-  const [showDescription, setShowDescription] = useState(false);
+  // Path Params
+  const { pollId } = Route.useParams();
+
+  // Data Fetching
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["votePoll", pollId],
+    queryFn: () => fetchVotePoll(parseInt(pollId)),
+  });
+
+  // Data Mutation
+  const mutation = useMutation({ mutationFn: insertVote });
+
+  // UI states
+  const [disableVote, setDisableVote] = useState(false);
   const [clicked, setClicked] = useState<number | null>(null);
+  const [showDescription, setShowDescription] = useState(false);
+
+  // check vote status
+  useEffect(() => {
+    if (localStorage.getItem("voted")) {
+      setDisableVote(true);
+      toast.error("You have already voted");
+    }
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="font-satoshi-bold relative w-screen min-h-screen flex flex-col justify-center items-center bg-off-white">
+        <span className="text-3xl">Loading...</span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="font-satoshi-bold relative w-screen min-h-screen flex flex-col justify-center items-center bg-off-white">
+        <span className="text-3xl">{error.message}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="font-satoshi-medium relative w-screen min-h-screen flex flex-col items-center bg-off-white pt-40 pb-20 px-30 max-md:px-10 max-md:pt-20 gap-18 max-md:gap-14">
       {/* Logo */}
-      <img src={logo} className="size-7 max-md:size-5" />
+      <Link to="/">
+        <img src={logo} className="size-7 max-md:size-5" />
+      </Link>
 
       {/* Poll Title */}
       <div className="flex flex-col items-center gap-8">
         <span className="font-satoshi-bold text-center text-3xl max-md:text-xl">
-          If you could instantly master any skill in the world, what would you
-          choose and why?
+          {data?.title}
         </span>
         {showDescription && (
           <span className="w-4/5 text-center text-xl max-md:text-base text-black/50">
-            Food brings people together, but everyone has their own favorite!
-            🍕🍔🍝🍣 Cast your vote and help us settle the ultimate debate —
-            which comfort food deserves the crown? Whether you're team pizza,
-            burger, pasta, or sushi, your opinion counts. Let’s see which dish
-            wins the crowd’s heart! Food brings people together, but everyone
-            has their own favorite! 🍕🍔🍝🍣 Cast your vote and help us settle
-            the ultimate debate — which comfort food deserves the crown? Whether
-            you're team pizza, burger, pasta, or sushi, your opinion counts.
-            Let’s see which dish wins the crowd’s heart! Food brings people
-            together, but everyone has their own favorite! 🍕🍔🍝🍣 Cast your
-            vote and help us settle the ultimate debate — which comfort food
-            deserves the crown? Whether you're team pizza, burger, pasta, or
-            sushi, your opinion counts. Let’s see which dish wins the crowd’s
-            heart!
+            {data?.description}
           </span>
         )}
-        <span
-          onClick={() => setShowDescription((prev) => !prev)}
-          className="cursor-pointer text-xl max-md:text-base text-black/50"
-        >
-          {showDescription ? "hide description" : "show description"}
-        </span>
+        {data?.description !== null && (
+          <span
+            onClick={() => setShowDescription((prev) => !prev)}
+            className="cursor-pointer text-xl max-md:text-base text-black/50"
+          >
+            {showDescription ? "hide description" : "show description"}
+          </span>
+        )}
       </div>
 
       {/* Poll Options */}
       <div className="w-1/2 max-lg:w-2/3 max-md:w-9/10 flex flex-col text-xl max-md:text-base gap-6">
-        {pollOptions.map((option, index) => (
+        {data?.options.map((option, index) => (
           <VoteOption
             key={index}
-            disabled={false}
+            disabled={disableVote}
             active={clicked === index}
-            onClick={() => setClicked(index)}
+            onClick={
+              disableVote
+                ? undefined
+                : () => {
+                    setClicked(index);
+                    toast.promise(
+                      mutation.mutateAsync({
+                        poll_id: parseInt(pollId),
+                        option,
+                      }),
+                      {
+                        loading: "Submitting your vote...",
+                        success: () => {
+                          setDisableVote(true);
+                          localStorage.setItem("voted", "true");
+                          return "Vote submitted successfully!";
+                        },
+                        error: "Failed to submit your vote. Please try again.",
+                      }
+                    );
+                  }
+            }
           >
             {option}
           </VoteOption>

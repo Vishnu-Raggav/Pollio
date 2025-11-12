@@ -13,10 +13,14 @@ export default async function fetchVotePoll(
     .eq("id", poll_id)
     .limit(1);
 
-  if (error) throw new Error("Poll not found");
+  if (error) throw new Error("Something went wrong fetching poll");
+  if (!data || data.length === 0) throw new Error("Poll not found");
 
-  const pollExpiryDate = new Date(data[0].expires_at);
-  const todayDate = new Date();
-  if (todayDate > pollExpiryDate) throw new Error("Poll has ended");
-  return data[0];
+  const poll = data[0];
+
+  // Check expiration
+  const pollExpiryDate = new Date(poll.expires_at);
+  if (new Date() > pollExpiryDate) throw new Error("Poll has ended");
+
+  return poll;
 }
