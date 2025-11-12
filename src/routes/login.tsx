@@ -53,7 +53,7 @@ function RouteComponent() {
     login({ email: data.email, password: data.password })
       .then(() => {
         toast.success("Welcome back");
-        setTimeout(() => navigate({ to: "/dashboard" }), 2000);
+        navigate({ to: "/dashboard" });
       })
       .catch(() => toast.error("Invalid email or password"));
   };

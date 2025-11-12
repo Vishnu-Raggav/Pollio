@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  redirect,
+} from "@tanstack/react-router";
 
 // Images
 import logo from "/logo.svg";
@@ -26,9 +31,16 @@ import { type SchemaType } from "@/schemas/createPollSchema";
 import cn from "@/utils/cn";
 import supabase from "@/lib/supabaseClient";
 import insertPoll from "@/utils/insertPoll";
+import isAuthenticated from "@/utils/isAuthenticated";
 
 export const Route = createFileRoute("/dashboard/create-poll")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const loggedIn = await isAuthenticated();
+    if (!loggedIn) {
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 function RouteComponent() {
