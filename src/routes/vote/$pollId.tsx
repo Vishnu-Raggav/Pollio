@@ -40,7 +40,7 @@ function RouteComponent() {
 
   // check vote status
   useEffect(() => {
-    if (localStorage.getItem("voted")) {
+    if (localStorage.getItem(`voted-${pollId}`)) {
       setDisableVote(true);
       toast.error("You have already voted");
     }
@@ -110,7 +110,7 @@ function RouteComponent() {
                         loading: "Submitting your vote...",
                         success: () => {
                           setDisableVote(true);
-                          localStorage.setItem("voted", "true");
+                          localStorage.setItem(`voted-${pollId}`, "true");
                           return "Vote submitted successfully!";
                         },
                         error: "Failed to submit your vote. Please try again.",
