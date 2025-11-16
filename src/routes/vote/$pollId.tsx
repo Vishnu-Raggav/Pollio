@@ -44,7 +44,7 @@ function RouteComponent() {
       setDisableVote(true);
       toast.error("You have already voted");
     }
-  }, []);
+  }, [pollId]);
 
   if (isLoading) {
     return (

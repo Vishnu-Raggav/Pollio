@@ -2,6 +2,7 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { useMediaQuery } from "react-responsive";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const Route = createRootRoute({
   component: RouteComponent,
@@ -20,6 +21,7 @@ function RouteComponent() {
         position={isDesktop ? "bottom-center" : "top-center"}
         visibleToasts={2}
       />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
