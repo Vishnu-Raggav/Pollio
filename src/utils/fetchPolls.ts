@@ -5,7 +5,9 @@ import supabase from "@/lib/supabaseClient";
 import type { SortOptions } from "@/constants/pollSortOptions";
 
 export default async function fetchPolls(sortBy: SortOptions) {
-  let query = supabase.from("polls").select("*");
+  let query = supabase
+    .from("polls")
+    .select("id, title, description, created_at, expires_at, votes (poll_id)");
 
   switch (sortBy) {
     case "Recent":
@@ -30,7 +32,7 @@ export default async function fetchPolls(sortBy: SortOptions) {
       break;
   }
 
-  const { data, error } = await query;
+  const { data: polls, error } = await query;
   if (error) throw error;
-  return data;
+  return polls.map((poll) => ({ ...poll, votes: poll.votes.length }));
 }

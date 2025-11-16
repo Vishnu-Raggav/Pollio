@@ -109,7 +109,7 @@ function RouteComponent() {
               key={poll.id}
               title={poll.title}
               status={pollStatus}
-              votes={12}
+              votes={poll.votes}
               isLoading={false}
               date={
                 pollStatus === "Expired" ? poll.created_at : poll.expires_at
