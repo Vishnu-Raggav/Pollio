@@ -80,6 +80,15 @@ function RouteComponent() {
   const submitFn: SubmitHandler<SchemaType> = async (data) => {
     const { title, description, options, duration } = data;
 
+    // ❗ Duplicate option validation here
+    const optionValues = options.map((o) => o.value.trim().toLowerCase());
+    const hasDuplicates = new Set(optionValues).size !== optionValues.length;
+
+    if (hasDuplicates) {
+      toast.error("Options cannot be identical");
+      return;
+    }
+
     // created_by
     const {
       data: { user },
