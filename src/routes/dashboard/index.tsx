@@ -16,10 +16,11 @@ import { ChevronDown, LogOut, Plus } from "lucide-react";
 // Libs
 import { toast } from "sonner";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 
 // Helpers
 import logout from "@/utils/logout";
+import getPoll from "@/utils/getPoll";
 import fetchPolls from "@/utils/fetchPolls";
 import isAuthenticated from "@/utils/isAuthenticated";
 
@@ -49,6 +50,16 @@ function RouteComponent() {
     queryKey: ["polls", sortBy],
     queryFn: () => fetchPolls(sortBy),
     staleTime: Infinity,
+  });
+
+  useQueries({
+    queries:
+      polls?.map((pollData) => ({
+        queryKey: ["polls", pollData.id],
+        queryFn: () => getPoll(pollData.id),
+        staleTime: Infinity,
+        enabled: !!polls,
+      })) || [],
   });
 
   return (
