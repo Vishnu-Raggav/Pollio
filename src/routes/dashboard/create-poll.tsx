@@ -15,7 +15,8 @@ import FormLabelDescription from "@/components/FormLabelDescription";
 
 // Libs
 import { toast } from "sonner";
-import { Minus, Plus, Send, Trash, X } from "lucide-react";
+import { useState } from "react";
+import { Copy, Minus, Plus, Send, Trash, X } from "lucide-react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   useForm,
@@ -45,11 +46,15 @@ export const Route = createFileRoute("/dashboard/create-poll")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+
+  // Query
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: insertPoll,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["polls"] }),
   });
+
+  // RHF
   const {
     register,
     control,
@@ -68,6 +73,9 @@ function RouteComponent() {
     name: "options",
     control,
   });
+
+  // UI State
+  const [showLink, setShowLink] = useState<number | false>(false);
 
   const submitFn: SubmitHandler<SchemaType> = async (data) => {
     const { title, description, options, duration } = data;
@@ -101,9 +109,9 @@ function RouteComponent() {
       }),
       {
         loading: "Loading...",
-        success: () => {
+        success: (pollData) => {
           reset();
-          navigate({ to: "/dashboard" });
+          setShowLink(pollData.id);
           return "Your poll is live! 🎉";
         },
         error: "Oops! We couldn’t create your poll",
@@ -143,177 +151,216 @@ function RouteComponent() {
   };
 
   return (
-    <div className="relative w-screen h-fit bg-off-white pt-20 px-30 max-md:px-10 max-md:pt-10 max-lg:px-20">
-      <header className="flex items-center justify-between w-full h-fit">
-        <div className="flex items-center gap-6 max-md:gap-4">
-          <img src={logo} className="size-7 max-md:size-4" />
-          <span className="font-righteous text-4xl max-md:text-2xl">
-            Pollio
-          </span>
-        </div>
-        <div className="flex gap-6 max-md:gap-4">
-          <Button
-            onClick={handleSubmit(submitFn, errorFn)}
-            variant={"primary"}
-            text={"Publish"}
-            size="small"
-            disabled={isSubmitting || mutation.isPending}
-          >
-            <Send className="size-4 max-md:size-3" />
-          </Button>
-          <Link to="/dashboard">
-            <Button variant={"secondary"} text={"Delete"} size="small">
-              <Trash className="size-4 max-md:size-3" />
+    <>
+      <div className="relative w-screen min-h-screen max-h-fit bg-off-white pt-20 px-30 max-md:px-10 max-md:pt-10 max-lg:px-20">
+        <header className="flex items-center justify-between w-full h-fit">
+          <div className="flex items-center gap-6 max-md:gap-4">
+            <img src={logo} className="size-7 max-md:size-4" />
+            <span className="font-righteous text-4xl max-md:text-2xl">
+              Pollio
+            </span>
+          </div>
+          <div className="flex gap-6 max-md:gap-4">
+            <Button
+              onClick={handleSubmit(submitFn, errorFn)}
+              variant={"primary"}
+              text={"Publish"}
+              size="small"
+              disabled={isSubmitting || mutation.isPending}
+            >
+              <Send className="size-4 max-md:size-3" />
             </Button>
-          </Link>
-        </div>
-      </header>
-      <main className="mt-14 pb-20">
-        <form
-          onSubmit={handleSubmit(submitFn, errorFn)}
-          className="w-full h-fit border-2 max-md:border-0 border-black/25 rounded-lg p-10 max-md:p-0 divide-y-2 max-md:divide-y-1 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]"
-        >
-          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
-            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
-              <FormLabel>Poll Title</FormLabel>
-              <FormLabelDescription>
-                A short, clear name for your poll
-              </FormLabelDescription>
-            </div>
-            <FormInput
-              {...register("title", {
-                required: "Title is required",
-                validate: (value) =>
-                  value.trim().length > 0 ||
-                  "Title cannot be empty or just spaces",
-                minLength: {
-                  value: 2,
-                  message: "Title must be at least 2 characters",
-                },
-                maxLength: {
-                  value: 100,
-                  message: "Title cannot exceed 100 characters",
-                },
-              })}
-              maxLength={100}
-              placeholder="Cats or Dogs ?"
-            />
-          </div>
-          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
-            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
-              <FormLabel>Description</FormLabel>
-              <FormLabelDescription>
-                Optional details about your poll
-                <br />
-                (Hidden by default for voters — expand to view)
-              </FormLabelDescription>
-            </div>
-            <FormTextArea
-              {...register("description", {
-                maxLength: {
-                  value: 300,
-                  message: "Description cannot exceed 300 characters",
-                },
-              })}
-              maxLength={300}
-              rows={5}
-              placeholder="Explain what this poll is about..."
-            />
-          </div>
-          <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
-            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
-              <FormLabel>Options</FormLabel>
-              <FormLabelDescription>
-                Enter the choices your voters will select from
-              </FormLabelDescription>
-            </div>
-            <div className="w-1/2 max-md:w-full flex flex-col gap-4 max-md:gap-2 max-md:mt-4">
-              {fields.map((field, index) => (
-                <PollOption
-                  key={field.id}
-                  maxLength={50}
-                  disabled={fields.length <= 2}
-                  placeholder={`Option ${index + 1}`}
-                  onClick={() => {
-                    if (fields.length > 2) remove(index);
-                  }}
-                  {...register(`options.${index}.value`, {
-                    required:
-                      index > 1
-                        ? "Option cannot be empty"
-                        : "Add at least 2 options",
-                    validate: (value) =>
-                      value.trim().length > 0 ||
-                      "Option cannot be empty or just spaces",
-                    minLength: {
-                      value: 1,
-                      message: "Option must be at least 3 characters",
-                    },
-                    maxLength: {
-                      value: 50,
-                      message: "Options cannot exceed 50 characters",
-                    },
-                  })}
-                />
-              ))}
-              <Button
-                disabled={fields.length >= 10}
-                type="button"
-                size="small"
-                variant="secondary"
-                text="Add Option"
-                onClick={() => {
-                  if (fields.length < 10) append({ value: "" });
-                }}
-              >
-                <Plus className="size-4 max-md:size-3" />
+            <Link to="/dashboard">
+              <Button variant={"secondary"} text={"Delete"} size="small">
+                <Trash className="size-4 max-md:size-3" />
               </Button>
-            </div>
+            </Link>
           </div>
-          <div className="w-full h-fit flex max-md:flex-col">
-            <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
-              <FormLabel>Duration</FormLabel>
-              <FormLabelDescription>
-                How long the poll stays open for voting (hours)
-              </FormLabelDescription>
+        </header>
+        <main className="mt-14 pb-20">
+          <form
+            onSubmit={handleSubmit(submitFn, errorFn)}
+            className="w-full h-fit border-2 max-md:border-0 border-black/25 rounded-lg p-10 max-md:p-0 divide-y-2 max-md:divide-y-1 divide-black/25 space-y-[var(--space)] [--space:theme(spacing.12)]"
+          >
+            <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+              <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
+                <FormLabel>Poll Title</FormLabel>
+                <FormLabelDescription>
+                  A short, clear name for your poll
+                </FormLabelDescription>
+              </div>
+              <FormInput
+                {...register("title", {
+                  required: "Title is required",
+                  validate: (value) =>
+                    value.trim().length > 0 ||
+                    "Title cannot be empty or just spaces",
+                  minLength: {
+                    value: 2,
+                    message: "Title must be at least 2 characters",
+                  },
+                  maxLength: {
+                    value: 100,
+                    message: "Title cannot exceed 100 characters",
+                  },
+                })}
+                maxLength={100}
+                placeholder="Cats or Dogs ?"
+              />
             </div>
-            <FormDurationInput
-              incrementFn={() => {
-                const value = getValues("duration");
-                if (!Number.isNaN(value)) setValue("duration", value + 1);
-              }}
-              decrementFn={() => {
-                const value = getValues("duration");
-                if (!Number.isNaN(value) && value > 1)
-                  setValue("duration", value - 1);
-              }}
-              {...register("duration", {
-                required: "Duration is required",
-                valueAsNumber: true,
-                min: {
-                  value: 1,
-                  message: "Duration must atleast be an hour",
-                },
-                max: {
-                  value: 168,
-                  message: "Duration cannot exceed 168 hours (7 days)",
-                },
-              })}
-            />
-          </div>
-        </form>
-      </main>
+            <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+              <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
+                <FormLabel>Description</FormLabel>
+                <FormLabelDescription>
+                  Optional details about your poll
+                  <br />
+                  (Hidden by default for voters — expand to view)
+                </FormLabelDescription>
+              </div>
+              <FormTextArea
+                {...register("description", {
+                  maxLength: {
+                    value: 300,
+                    message: "Description cannot exceed 300 characters",
+                  },
+                })}
+                maxLength={300}
+                rows={5}
+                placeholder="Explain what this poll is about..."
+              />
+            </div>
+            <div className="w-full h-fit flex max-md:flex-col pb-[var(--space)]">
+              <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
+                <FormLabel>Options</FormLabel>
+                <FormLabelDescription>
+                  Enter the choices your voters will select from
+                </FormLabelDescription>
+              </div>
+              <div className="w-1/2 max-md:w-full flex flex-col gap-4 max-md:gap-2 max-md:mt-4">
+                {fields.map((field, index) => (
+                  <PollOption
+                    key={field.id}
+                    maxLength={50}
+                    disabled={fields.length <= 2}
+                    placeholder={`Option ${index + 1}`}
+                    onClick={() => {
+                      if (fields.length > 2) remove(index);
+                    }}
+                    {...register(`options.${index}.value`, {
+                      required:
+                        index > 1
+                          ? "Option cannot be empty"
+                          : "Add at least 2 options",
+                      validate: (value) =>
+                        value.trim().length > 0 ||
+                        "Option cannot be empty or just spaces",
+                      minLength: {
+                        value: 1,
+                        message: "Option must be at least 3 characters",
+                      },
+                      maxLength: {
+                        value: 50,
+                        message: "Options cannot exceed 50 characters",
+                      },
+                    })}
+                  />
+                ))}
+                <Button
+                  disabled={fields.length >= 10}
+                  type="button"
+                  size="small"
+                  variant="secondary"
+                  text="Add Option"
+                  onClick={() => {
+                    if (fields.length < 10) append({ value: "" });
+                  }}
+                >
+                  <Plus className="size-4 max-md:size-3" />
+                </Button>
+              </div>
+            </div>
+            <div className="w-full h-fit flex max-md:flex-col">
+              <div className="w-1/2 max-md:w-full flex flex-col gap-2 max-md:gap-1">
+                <FormLabel>Duration</FormLabel>
+                <FormLabelDescription>
+                  How long the poll stays open for voting (hours)
+                </FormLabelDescription>
+              </div>
+              <FormDurationInput
+                incrementFn={() => {
+                  const value = getValues("duration");
+                  if (!Number.isNaN(value)) setValue("duration", value + 1);
+                }}
+                decrementFn={() => {
+                  const value = getValues("duration");
+                  if (!Number.isNaN(value) && value > 1)
+                    setValue("duration", value - 1);
+                }}
+                {...register("duration", {
+                  required: "Duration is required",
+                  valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "Duration must atleast be an hour",
+                  },
+                  max: {
+                    value: 168,
+                    message: "Duration cannot exceed 168 hours (7 days)",
+                  },
+                })}
+              />
+            </div>
+          </form>
+        </main>
 
-      {/* Bottom Blur */}
-      <div
-        className="pointer-events-none fixed bottom-0 left-0 w-screen h-[50px] backdrop-blur-3xl"
-        style={{
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
-          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
-        }}
-      />
-    </div>
+        {/* Bottom Blur */}
+        <div
+          className="pointer-events-none fixed bottom-0 left-0 w-screen h-[50px] backdrop-blur-3xl"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
+            maskImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1))",
+          }}
+        />
+      </div>
+      {showLink && (
+        <div className="font-satoshi-bold fixed inset-0 w-screen h-screen grid place-items-center bg-black/25">
+          <div className="size-fit flex flex-col rounded-xl border border-black/50 bg-white px-8 pt-6 pb-8 gap-6">
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between">
+                <FormLabel>Poll Link</FormLabel>
+                <X
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setShowLink(false);
+                    navigate({ to: "/dashboard" });
+                  }}
+                />
+              </div>
+              <div className="w-9/10">
+                <FormLabelDescription>
+                  You can always find and copy this link again from your
+                  dashboard.
+                </FormLabelDescription>
+              </div>
+            </div>
+            <div className="flex justify-between items-center input text-black">
+              <span>{`${window.origin}/vote/${showLink}`}</span>
+              <Copy
+                className="cursor-pointer size-4"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.origin}/vote/${showLink}`
+                  );
+                  toast.success("Copied to clipboard");
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
